@@ -1,0 +1,25 @@
+{
+  "name": "library_api",
+  "version": "1.0.0",
+  "description": "Library rest api for books",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/js-training1/palautukset/emmadiprasanna/library_api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/js-training1/palautukset/emmadiprasanna/library_api/issues"
+  },
+  "homepage": "https://gitlab.com/js-training1/palautukset/emmadiprasanna/library_api#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  },
+  "type": "module"
+}
