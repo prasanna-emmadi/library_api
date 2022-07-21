@@ -7,9 +7,8 @@ const port = 3000;
 let books = [];
 let bookId = 0;
 
-const findBook = (id) => {
-  const idInt = parseInt(id);
-  return books.findIndex((book) => {
+const findBook = (idInt) => {
+  return books.find((book) => {
     return book.id === idInt;
   });
 };
@@ -29,29 +28,33 @@ app.get("/books", (request, response) => {
 });
 
 app.get("/books/:id", (request, response) => {
-  const id = request.params.id;
-  const index = findBook(id);
-  if (index !== -1) {
-    response.send(books[index]);
+  const id = parseInt(request.params.id);
+  const book = findBook(id);
+  if (book !== undefined) {
+    response.send(book);
   } else {
     response.sendStatus(404);
   }
 });
 
 app.put("/books/:id", (request, response) => {
-  const id = request.params.id;
-  const index = findBook(id);
-  if (index !== -1) {
-    const body = request.body;
-    const book = books[index];
-    const updatedbook = {
-      ...book,
-      ...body,
-    };
-    books[index] = updatedbook;
-    response.sendStatus(202);
+  const id = parseInt(request.params.id);
+  const book = findBook(id);
+  if (book !== undefined) {
+    books = books.map((book) => {
+      if (book.id === id) {
+        return {
+          ...book,
+          ...body,
+        };
+      } else {
+        return book;
+      }
+    });
+    response.sendStatus(200);
   } else {
     response.sendStatus(404);
+    return books;
   }
 });
 
@@ -62,17 +65,15 @@ app.post("/books", (request, response) => {
     ...body,
     id: bookId,
   };
-  books.push(book);
+  books = [...books, book];
   response.sendStatus(200);
 });
 
 app.delete("/books/:id", (request, response) => {
-  const id = request.params.id;
+  const id = parseInt(request.params.id);
   const index = findBook(id);
   if (index !== -1) {
-    const pre = books.slice(0, index);
-    const post = books.slice(index + 1);
-    books = [...pre, ...post];
+    books = books.filter((book) => book.id !== id);
     response.sendStatus(200);
   } else {
     response.sendStatus(404);
