@@ -14,6 +14,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// middleware for /books
+// { "authorization" : "Bearer token"}
 app.use("/books", (req, res, next) => {
   const auth = req.get("authorization");
   if (auth && auth.toLowerCase().startsWith("bearer ")) {
@@ -22,7 +24,7 @@ app.use("/books", (req, res, next) => {
     if (!token || !decodedToken.username) {
       return res.status(401).json({ error: "token missing or invalid" });
     }
-    req.user = decodedToken;
+    req.user = decodedToken; // { username: username}
     next();
   } else {
     return res.status(401).json({ error: "token missing or invalid" });
@@ -32,7 +34,6 @@ app.use("/books", (req, res, next) => {
 // GET /books?author=<author_name>
 app.post("/login", async (req, res) => {
   try {
-    console.log(req.body);
     const { username, password } = req.body;
     const user = await UserModel.findOne({ username: username });
     if (user) {
@@ -71,9 +72,27 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/refresh", async (req, res) => {
+  try {
+    const token = req.body;
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token || !decodedToken.username) {
+      const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json({ token });
+    } else {
+      res.status(401).json("Forbidden user");
+    }
+  } catch (e) {
+    console.error(e);
+    res.status(404).json({ message: "Forbidden user" });
+  }
+});
+
 app.get("/books", async (req, res) => {
   // get username from token
-  console.log(req.user.username);
   const username = req.user.username;
   try {
     const user = await UserModel.findOne({ username: username });
@@ -81,20 +100,7 @@ app.get("/books", async (req, res) => {
       const allBooks = await BookModel.find({ userId: user._id });
       res.json(allBooks);
     } else {
-      res.status(404).json({ message: "db connection issue" });
-    }
-  } catch (e) {
-    res.status(404).json({ message: "db connection issue" });
-  }
-});
-
-app.get("/books/:id", async (req, res) => {
-  try {
-    const book = await BookModel.findById(req.params.id);
-    if (book) {
-      res.json(book);
-    } else {
-      res.status(404).json({ message: "book not found" });
+      res.status(404).json({ message: "no user found" });
     }
   } catch (e) {
     res.status(404).json({ message: "db connection issue" });
@@ -103,15 +109,12 @@ app.get("/books/:id", async (req, res) => {
 
 app.put("/books", async (req, res) => {
   try {
-    const updatedBook = await BookModel.findOneAndUpdate(
+    const book = await BookModel.findOneAndUpdate(
       { title: req.body.title },
       req.body
     );
-    if (updatedBook) {
-      res.json(updatedBook);
-    } else {
-      res.status(404).json({ message: "db connection issue" });
-    }
+
+    res.status(200).json({ message: "update succesful" });
   } catch (e) {
     console.log("updateBook: ", e);
     res.status(400).json({ message: "bad request" });
@@ -127,10 +130,8 @@ app.post("/books", async (req, res) => {
         ...req.body,
         userId: user._id,
       };
-      console.log({ bookDetails });
       const newBook = new BookModel(bookDetails);
       const savedBook = await newBook.save();
-      console.log("new book saved");
       res.json(savedBook);
     } else {
       res.status(404).json({ message: "user not found" });
