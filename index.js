@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // GET /books?author=<author_name>
-app.use("/ ", UserRouter);
+app.use("/", UserRouter);
 app.use("/books", BookRouter);
 
 app.listen(port, async () => {

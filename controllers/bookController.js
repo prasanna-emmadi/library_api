@@ -1,5 +1,5 @@
 import BookModel from "../models/book.js";
-import UserModel from "./models/user.js";
+import UserModel from "../models/user.js";
 
 export const getBooks = async (req, res) => {
   // get username from token

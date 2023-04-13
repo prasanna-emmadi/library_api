@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "..\\sample_library_ui"
+	},
+	{
+		"path": "."
+	},
+	{
+		"path": "..\\used_cars"
+	}
+],
+  "settings": {}
+}

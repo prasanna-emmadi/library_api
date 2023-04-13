@@ -5,7 +5,7 @@ import {
   editBook,
   createBook,
   deleteBook,
-} from "../controllers/bookController";
+} from "../controllers/bookController.js";
 import { jwtVerify } from "../middleware/middleware.js";
 
 const router = express.Router();
